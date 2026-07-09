@@ -1,9 +1,0 @@
-[INICIO] Chatbot AI Académico v2.0.0
-[SERVER] http://127.0.0.1:8000
-[MODELOS] {'primary': 'gemma3:4b', 'coding': 'gemma3:4b', 'agent': 'qwen2.5:1.5b', 'fast': 'qwen2.5:1.5b'}
-INFO:     127.0.0.1:55803 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51299 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65530 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:60670 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60671 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:64182 - "POST /api/chat HTTP/1.1" 500 Internal Server Error

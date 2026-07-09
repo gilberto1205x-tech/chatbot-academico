@@ -1,0 +1,51 @@
+Usuario: que es machine learning
+Bot: Machine Learning es una rama de la Inteligencia Artificial que permite que los sistemas aprendan patrones a partir de datos.
+----------------------------------------
+Usuario: quien eres?
+Bot: Hola! Soy Chatbot AI Académico. Creo para un proyecto semestral universitario sobre Inteligencia Artificial. ¿En qué puedo ayudarte hoy?
+----------------------------------------------------------------------
+Usuario: recuerda mi nombre es Gilberto
+Bot: Hola, Gilberto! Como Chatbot AI Académico, estoy aquí para brindarte información sobre Inteligencia Artificial. ¿En qué puedo ayudarte hoy?
+----------------------------------------------------------------------
+Usuario: buscar en internet el mundial de futbol 2026
+Bot: Hola Gilberto! Como Chatbot AI Académico, estoy aquí para ayudarte a buscar información sobre el Mundial de Fútbol 2026. ¿Podrías decirme en qué tipo de evento te interesa más: la Copa del Mundo de la FIFA o las Eliminatorias?
+----------------------------------------------------------------------
+Usuario: quiero saber cuando el es partido innagural del mundial 2026 de la fifa
+Bot: Hola Gilberto! Para encontrar información sobre cuándo será el primer partido del Mundial de Fútbol 2026, necesitaría más detalles. ¿Podrías especificar si estás interesado en:
+
+1. La Copa del Mundo de la FIFA o las Eliminatorias?
+2. Un evento específico dentro del proceso.
+
+Por favor proporciona más información para poder ayudarte mejor con tu pregunta sobre el Mundial 2026.
+----------------------------------------------------------------------
+Usuario: estoy interesado en la copa del mundo de la fifa
+Bot: Hola Gilberto! Entiendo tu interés en el Mundial de Fútbol 2026. Estás buscando información sobre cuándo será el primer partido del evento. 
+
+Para ayudarte con este detalle específico, necesito que me indiques si estás interesado:
+
+1. En la Copa del Mundo de la FIFA o las Eliminatorias?
+2. Un evento específico dentro del proceso.
+
+Por favor, proporciona esa información para poder asistirte mejor en tu búsqueda sobre el primer partido del Mundial 2026.
+----------------------------------------------------------------------
+Usuario: cual es mi nombre?
+Bot: Hola! ¿Cómo puedo ayudarte con tu pregunta?
+----------------------------------------------------------------------
+Usuario: salir
+Bot: Gracias por usar el Chatbot AI. Conversación finalizada.
+----------------------------------------------------------------------
+Usuario: recuerda que mi nombre es Gilberto
+Bot: Listo, he guardado eso en mi memoria.
+----------------------------------------------------------------------
+Usuario: como me llamo?
+Bot: Tu nombre es Gilberto.
+----------------------------------------------------------------------
+Usuario: busca en internet que paises juegan el primer partido de la copa mundial de futbol de la fifa en 2026
+Bot: Para encontrar los países que jugarán el primer partido de la Copa Mundial FIFA 2026, necesitaría más información sobre la sede o las fechas específicas para poder proporcionar una respuesta precisa. Sin embargo, puedo decirte que en general, la Copa Mundial FIFA se organiza cada cuatro años y es un evento internacional importante. Si tienes alguna otra pregunta o necesitas ayuda con algo más, no dudes en preguntar.
+----------------------------------------------------------------------
+Usuario: busca en internet que paises son lo que jugaran el primer partido de la copa mundial de la fifa el 11 de junio de 2026
+Bot: Para encontrar los países que jugarán el primer partido de la Copa Mundial FIFA 2026, necesitaría más información sobre las fechas específicas para poder proporcionar una respuesta precisa. Sin embargo, puedo decirte que en general, la Copa Mundial FIFA se organiza cada cuatro años y es un evento internacional importante. Si tienes alguna otra pregunta o necesitas ayuda con algo más, no dudes en preguntar.
+----------------------------------------------------------------------
+Usuario: salir
+Bot: Gracias por usar el Chatbot AI. Conversación finalizada.
+----------------------------------------------------------------------

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Académico</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div id="sidebar">
+    <div class="sidebar-header">
+        <h2>Chatbot</h2>
+        <div class="version">v2.0</div>
+    </div>
+
+    <div class="mode-selector">
+        <label>Modo</label>
+        <select id="mode-select">
+            <option value="qa">Q&A (preconfigurado)</option>
+            <option value="ai">IA (API)</option>
+            <option value="auto">Automático (Q&A + IA)</option>
+        </select>
+    </div>
+
+    <div class="sidebar-actions">
+        <button class="sidebar-btn" id="btn-new">+ Nuevo chat</button>
+        <button class="sidebar-btn" id="btn-qa-list">Ver Q&A</button>
+        <button class="sidebar-btn" id="btn-config">Configuración</button>
+    </div>
+
+    <div id="ai-status" class="status-disconnected">IA no configurada</div>
+
+    <div class="sidebar-info">
+        Chatbot Académico<br>
+        Preguntas precargadas + IA opcional
+    </div>
+</div>
+
+<div id="main">
+    <div id="chat-header">
+        <h1>Chatbot Académico</h1>
+        <p>Preguntas y respuestas preconfiguradas + IA</p>
+    </div>
+
+    <div id="chat-messages">
+        <div class="message welcome">
+            <div class="avatar bot-avatar">AI</div>
+            <div class="message-content">
+                <p>Bienvenido al Chatbot Académico.</p>
+                <p>Puedo responder preguntas preconfiguradas y, si configuras una API key, también preguntas generales vía IA.</p>
+                <p><em>Escribe tu pregunta para empezar.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="input-area">
+        <textarea id="chat-input" placeholder="Escribe tu pregunta..." rows="1"></textarea>
+        <button id="btn-send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"></path>
+                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="hidden">
+    <div id="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title"></h3>
+            <button id="modal-close">&times;</button>
+        </div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

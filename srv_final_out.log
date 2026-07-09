@@ -1,0 +1,31 @@
+============================================================
+  Chatbot AI Académico v2.0.0
+============================================================
+
+  Modelos disponibles en Ollama: 2
+    -> gemma3:4b [primary]
+       qwen2.5:1.5b [fast]
+
+  Servidor: http://127.0.0.1:8000
+  Presiona Ctrl+C para detener
+============================================================
+
+  Usando modelo principal: gemma3:4b
+  Usando modelo agente:   qwen2.5:1.5b
+
+[INICIO] Chatbot AI Académico v2.0.0
+[SERVER] http://127.0.0.1:8000
+[MODELOS] {'primary': 'gemma3:4b', 'agent': 'qwen2.5:1.5b', 'coding': 'qwen2.5:1.5b', 'fast': 'qwen2.5:1.5b'}
+INFO:     127.0.0.1:56245 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56245 - "GET /static/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59766 - "GET /static/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59766 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61845 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61846 - "GET /static/style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61847 - "GET /static/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61848 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61849 - "GET /api/tools HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61850 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61851 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57838 - "POST /api/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57839 - "GET /api/history HTTP/1.1" 200 OK

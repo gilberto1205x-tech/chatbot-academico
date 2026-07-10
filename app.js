@@ -98,6 +98,26 @@ class ChatApp {
         }
     }
 
+    getDefaultModel(provider) {
+        const models = {
+            openai: 'gpt-4o-mini',
+            openrouter: 'mistralai/mistral-7b-instruct:free',
+            groq: 'llama3-70b-8192',
+            claude: 'claude-3-haiku-20240307',
+        };
+        return models[provider] || '';
+    }
+
+    getModelOptions(provider) {
+        const opts = {
+            openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+            openrouter: ['mistralai/mistral-7b-instruct:free', 'deepseek/deepseek-chat', 'qwen/qwen2-7b-instruct:free', 'microsoft/phi-3-mini-128k-instruct:free', 'meta-llama/llama-3.1-8b-instruct:free', 'google/gemma-2-9b-it:free'],
+            groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
+            claude: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229'],
+        };
+        return opts[provider] || [];
+    }
+
     getAIConfig() {
         return {
             provider: localStorage.getItem('ai_provider') || 'openai',
@@ -108,10 +128,11 @@ class ChatApp {
     }
 
     setAIConfig(provider, key, model, baseurl) {
+        const finalModel = model || this.getDefaultModel(provider);
         localStorage.setItem('ai_provider', provider);
         localStorage.setItem('ai_key', key);
-        localStorage.setItem('ai_model', model);
-        localStorage.setItem('ai_baseurl', baseurl);
+        localStorage.setItem('ai_model', finalModel);
+        localStorage.setItem('ai_baseurl', baseurl || '');
         this.updateAIStatus();
     }
 
@@ -341,52 +362,92 @@ class ChatApp {
 
     showConfig() {
         const cfg = this.getAIConfig();
+        const provider = cfg.provider || 'openai';
+
+        const modelOpts = this.getModelOptions(provider);
+        const modelOptionsHtml = modelOpts.map(m =>
+            `<option value="${m}" ${cfg.model === m ? 'selected' : ''}>${m}</option>`
+        ).join('');
+        const isCustomModel = cfg.model && !modelOpts.includes(cfg.model);
+
         const html = `
             <label>Proveedor IA</label>
             <select id="cfg-provider">
-                <option value="openai" ${cfg.provider === 'openai' ? 'selected' : ''}>OpenAI</option>
-                <option value="claude" ${cfg.provider === 'claude' ? 'selected' : ''}>Claude (Anthropic)</option>
-                <option value="openrouter" ${cfg.provider === 'openrouter' ? 'selected' : ''}>OpenRouter (gratis)</option>
-                <option value="groq" ${cfg.provider === 'groq' ? 'selected' : ''}>Groq (gratis)</option>
-                <option value="custom" ${cfg.provider === 'custom' ? 'selected' : ''}>Otro (URL personalizada)</option>
+                <option value="openai" ${provider === 'openai' ? 'selected' : ''}>OpenAI</option>
+                <option value="openrouter" ${provider === 'openrouter' ? 'selected' : ''}>OpenRouter (recomendado)</option>
+                <option value="groq" ${provider === 'groq' ? 'selected' : ''}>Groq</option>
+                <option value="claude" ${provider === 'claude' ? 'selected' : ''}>Claude (Anthropic)</option>
+                <option value="custom" ${provider === 'custom' ? 'selected' : ''}>Otro (URL personalizada)</option>
             </select>
 
-            <div id="cfg-url-group" style="display:${cfg.provider === 'custom' ? 'block' : 'none'}">
-                <label>URL base (API compatible con OpenAI)</label>
-                <input type="text" id="cfg-baseurl" value="${this.escapeHtml(cfg.baseurl || '')}" placeholder="https://ejemplo.com/v1">
+            <div id="cfg-url-group" style="display:${provider === 'custom' ? 'block' : 'none'}">
+                <label>URL base</label>
+                <input type="text" id="cfg-baseurl" value="${this.escapeHtml(cfg.baseurl || '')}" placeholder="https://api.ejemplo.com/v1">
             </div>
 
             <label>API Key</label>
-            <input type="password" id="cfg-apikey" value="${this.escapeHtml(cfg.key)}" placeholder="sk-...">
+            <input type="password" id="cfg-apikey" value="${this.escapeHtml(cfg.key)}" placeholder="Ingresa tu API key">
 
             <label>Modelo</label>
-            <input type="text" id="cfg-model" value="${this.escapeHtml(cfg.model)}" placeholder="vacio = por defecto">
-            <div style="font-size:11px;color:var(--text-muted);margin-top:-4px">
-                OpenAI: gpt-4o-mini | OpenRouter: mistralai/mistral-7b-instruct:free | Groq: llama3-70b-8192
+            <select id="cfg-model-select">
+                ${modelOptionsHtml}
+                <option value="__custom__" ${isCustomModel ? 'selected' : ''}>Personalizado...</option>
+            </select>
+            <div id="cfg-model-custom-group" style="display:${isCustomModel ? 'block' : 'none'};margin-top:4px">
+                <input type="text" id="cfg-model-custom" value="${isCustomModel ? this.escapeHtml(cfg.model) : ''}" placeholder="Nombre del modelo">
             </div>
 
-            <button class="modal-btn" id="cfg-save-ai">Guardar configuracion IA</button>
+            <button class="modal-btn" id="cfg-save-ai">Guardar configuracion</button>
             <hr style="border-color:var(--border);margin:20px 0;">
+
             <label>Agregar pregunta/respuesta nueva</label>
             <input type="text" id="qa-new-q" placeholder="Pregunta">
             <textarea id="qa-new-a" placeholder="Respuesta"></textarea>
             <button class="modal-btn secondary" id="qa-save">Agregar Q&A</button>
             <div id="config-status"></div>`;
+
         this.openModal('Configuracion', html);
 
+        // When provider changes, update model list
         document.getElementById('cfg-provider').addEventListener('change', () => {
-            const show = document.getElementById('cfg-provider').value === 'custom';
+            const p = document.getElementById('cfg-provider').value;
+            const show = p === 'custom';
             document.getElementById('cfg-url-group').style.display = show ? 'block' : 'none';
+
+            const opts = this.getModelOptions(p);
+            const select = document.getElementById('cfg-model-select');
+            select.innerHTML = opts.map(m => `<option value="${m}">${m}</option>`).join('') +
+                '<option value="__custom__">Personalizado...</option>';
+            // Auto-select first model
+            if (opts.length > 0) select.value = opts[0];
+            document.getElementById('cfg-model-custom-group').style.display = 'none';
+        });
+
+        // When model select changes, show/hide custom input
+        document.getElementById('cfg-model-select').addEventListener('change', () => {
+            const isCustom = document.getElementById('cfg-model-select').value === '__custom__';
+            document.getElementById('cfg-model-custom-group').style.display = isCustom ? 'block' : 'none';
+            if (isCustom) document.getElementById('cfg-model-custom').focus();
         });
 
         document.getElementById('cfg-save-ai').addEventListener('click', () => {
             const p = document.getElementById('cfg-provider').value;
             const k = document.getElementById('cfg-apikey').value.trim();
-            const m = document.getElementById('cfg-model').value.trim();
             const u = document.getElementById('cfg-baseurl')?.value.trim() || '';
-            if (!k) { document.getElementById('config-status').textContent = 'Ingresa una API key'; document.getElementById('config-status').className = 'msg-error'; return; }
-            this.setAIConfig(p, k, m, u);
-            document.getElementById('config-status').textContent = 'IA configurada correctamente';
+
+            let model = document.getElementById('cfg-model-select').value;
+            if (model === '__custom__') {
+                model = document.getElementById('cfg-model-custom').value.trim();
+            }
+
+            if (!k) {
+                document.getElementById('config-status').textContent = 'Ingresa una API key';
+                document.getElementById('config-status').className = 'msg-error';
+                return;
+            }
+
+            this.setAIConfig(p, k, model, u);
+            document.getElementById('config-status').textContent = `IA configurada: ${p} - ${model}`;
             document.getElementById('config-status').className = 'msg-success';
         });
 

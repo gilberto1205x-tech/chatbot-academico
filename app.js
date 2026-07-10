@@ -101,7 +101,7 @@ class ChatApp {
     getDefaultModel(provider) {
         const models = {
             openai: 'gpt-4o-mini',
-            openrouter: 'meta-llama/llama-3.2-3b-instruct:free',
+            openrouter: 'deepseek/deepseek-chat',
             groq: 'llama3-70b-8192',
             claude: 'claude-3-haiku-20240307',
         };
@@ -112,12 +112,8 @@ class ChatApp {
         const opts = {
             openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'],
             openrouter: [
-                'meta-llama/llama-3.2-3b-instruct:free',
-                'qwen/qwen2.5-7b-instruct:free',
-                'google/gemma-2-2b-it:free',
-                'microsoft/phi-3.5-mini-128k-instruct:free',
                 'deepseek/deepseek-chat',
-                'mistralai/mistral-7b-instruct',
+                'deepseek/deepseek-r1:free',
             ],
             groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
             claude: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229'],

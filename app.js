@@ -103,13 +103,15 @@ class ChatApp {
             provider: localStorage.getItem('ai_provider') || 'openai',
             key: localStorage.getItem('ai_key') || '',
             model: localStorage.getItem('ai_model') || '',
+            baseurl: localStorage.getItem('ai_baseurl') || '',
         };
     }
 
-    setAIConfig(provider, key, model) {
+    setAIConfig(provider, key, model, baseurl) {
         localStorage.setItem('ai_provider', provider);
         localStorage.setItem('ai_key', key);
         localStorage.setItem('ai_model', model);
+        localStorage.setItem('ai_baseurl', baseurl);
         this.updateAIStatus();
     }
 
@@ -182,81 +184,71 @@ class ChatApp {
 
         let fullResponse = '';
 
+        let url, headers, body;
+
+        if (cfg.provider === 'openai') {
+            url = 'https://api.openai.com/v1/chat/completions';
+            headers = { 'Authorization': `Bearer ${cfg.key}`, 'Content-Type': 'application/json' };
+            body = {
+                model: cfg.model || 'gpt-4o-mini',
+                messages: [
+                    { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
+                    { role: 'user', content: text },
+                ],
+                stream: true,
+            };
+        } else if (cfg.provider === 'openrouter') {
+            url = 'https://openrouter.ai/api/v1/chat/completions';
+            headers = { 'Authorization': `Bearer ${cfg.key}`, 'Content-Type': 'application/json', 'HTTP-Referer': window.location.origin };
+            body = {
+                model: cfg.model || 'google/gemini-2.0-flash-lite-001',
+                messages: [
+                    { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
+                    { role: 'user', content: text },
+                ],
+                stream: true,
+            };
+        } else if (cfg.provider === 'groq') {
+            url = 'https://api.groq.com/openai/v1/chat/completions';
+            headers = { 'Authorization': `Bearer ${cfg.key}`, 'Content-Type': 'application/json' };
+            body = {
+                model: cfg.model || 'llama3-70b-8192',
+                messages: [
+                    { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
+                    { role: 'user', content: text },
+                ],
+                stream: true,
+            };
+        } else if (cfg.provider === 'custom') {
+            url = (cfg.baseurl || '').replace(/\/+$/, '') + '/chat/completions';
+            headers = { 'Authorization': `Bearer ${cfg.key}`, 'Content-Type': 'application/json' };
+            body = {
+                model: cfg.model || 'default',
+                messages: [
+                    { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
+                    { role: 'user', content: text },
+                ],
+                stream: true,
+            };
+        } else if (cfg.provider === 'claude') {
+            url = 'https://api.anthropic.com/v1/messages';
+            headers = { 'x-api-key': cfg.key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' };
+            body = { model: cfg.model || 'claude-3-haiku-20240307', max_tokens: 1024, messages: [{ role: 'user', content: text }], stream: true };
+        }
+
         try {
-            if (cfg.provider === 'openai') {
-                const model = cfg.model || 'gpt-4o-mini';
-                const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${cfg.key}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model,
-                        messages: [
-                            { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
-                            { role: 'user', content: text },
-                        ],
-                        stream: true,
-                    }),
-                    signal: this.abortController.signal,
-                });
-                if (!resp.ok) {
-                    const err = await resp.text();
-                    this.addMessage('assistant', `Error OpenAI: ${resp.status} - ${err}`, { tag: 'Error', tagClass: '' });
-                    assistantDiv.remove();
-                    this.isStreaming = false;
-                    return;
-                }
-                const reader = resp.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop();
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6).trim();
-                            if (data === '[DONE]') break;
-                            try {
-                                const json = JSON.parse(data);
-                                const delta = json.choices?.[0]?.delta?.content || '';
-                                if (delta) {
-                                    fullResponse += delta;
-                                    contentDiv.innerHTML = fullResponse.replace(/\n/g, '<br>');
-                                    this.scrollBottom();
-                                }
-                            } catch {}
-                        }
-                    }
-                }
-            } else if (cfg.provider === 'claude') {
-                const model = cfg.model || 'claude-3-haiku-20240307';
-                const resp = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'x-api-key': cfg.key,
-                        'anthropic-version': '2023-06-01',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model,
-                        max_tokens: 1024,
-                        messages: [{ role: 'user', content: text }],
-                        stream: true,
-                    }),
-                    signal: this.abortController.signal,
-                });
-                if (!resp.ok) {
-                    const err = await resp.text();
-                    this.addMessage('assistant', `Error Claude: ${resp.status} - ${err}`, { tag: 'Error', tagClass: '' });
-                    assistantDiv.remove();
-                    this.isStreaming = false;
-                    return;
-                }
+            const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: this.abortController.signal });
+            if (!resp.ok) {
+                const err = await resp.text().catch(() => 'Unknown error');
+                this.addMessage('assistant', `Error (${resp.status}): ${err.slice(0, 300)}`, { tag: 'Error', tagClass: '' });
+                assistantDiv.remove();
+                this.isStreaming = false;
+                this.setLoading(false);
+                return;
+            }
+
+            if (cfg.provider === 'claude') {
+                // Claude tiene su propio formato de streaming
                 const reader = resp.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
@@ -272,12 +264,31 @@ class ChatApp {
                                 const json = JSON.parse(line.slice(6));
                                 if (json.type === 'content_block_delta') {
                                     const delta = json.delta?.text || '';
-                                    if (delta) {
-                                        fullResponse += delta;
-                                        contentDiv.innerHTML = fullResponse.replace(/\n/g, '<br>');
-                                        this.scrollBottom();
-                                    }
+                                    if (delta) { fullResponse += delta; contentDiv.innerHTML = fullResponse.replace(/\n/g, '<br>'); this.scrollBottom(); }
                                 }
+                            } catch {}
+                        }
+                    }
+                }
+            } else {
+                // OpenAI-compatible streaming (OpenAI, OpenRouter, Groq, custom)
+                const reader = resp.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') break;
+                            try {
+                                const json = JSON.parse(data);
+                                const delta = json.choices?.[0]?.delta?.content || json.choices?.[0]?.text || '';
+                                if (delta) { fullResponse += delta; contentDiv.innerHTML = fullResponse.replace(/\n/g, '<br>'); this.scrollBottom(); }
                             } catch {}
                         }
                     }
@@ -285,7 +296,7 @@ class ChatApp {
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
-                contentDiv.innerHTML += `<br><em style="color:var(--error)">Error: ${e.message}</em>`;
+                contentDiv.innerHTML = `<span style="color:var(--error)">Error: ${this.escapeHtml(e.message)}</span>`;
             }
         }
 
@@ -332,11 +343,28 @@ class ChatApp {
         const cfg = this.getAIConfig();
         const html = `
             <label>Proveedor IA</label>
-            <select id="cfg-provider"><option value="openai" ${cfg.provider === 'openai' ? 'selected' : ''}>OpenAI</option><option value="claude" ${cfg.provider === 'claude' ? 'selected' : ''}>Claude (Anthropic)</option></select>
+            <select id="cfg-provider">
+                <option value="openai" ${cfg.provider === 'openai' ? 'selected' : ''}>OpenAI</option>
+                <option value="claude" ${cfg.provider === 'claude' ? 'selected' : ''}>Claude (Anthropic)</option>
+                <option value="openrouter" ${cfg.provider === 'openrouter' ? 'selected' : ''}>OpenRouter (gratis)</option>
+                <option value="groq" ${cfg.provider === 'groq' ? 'selected' : ''}>Groq (gratis)</option>
+                <option value="custom" ${cfg.provider === 'custom' ? 'selected' : ''}>Otro (URL personalizada)</option>
+            </select>
+
+            <div id="cfg-url-group" style="display:${cfg.provider === 'custom' ? 'block' : 'none'}">
+                <label>URL base (API compatible con OpenAI)</label>
+                <input type="text" id="cfg-baseurl" value="${this.escapeHtml(cfg.baseurl || '')}" placeholder="https://ejemplo.com/v1">
+            </div>
+
             <label>API Key</label>
             <input type="password" id="cfg-apikey" value="${this.escapeHtml(cfg.key)}" placeholder="sk-...">
-            <label>Modelo (opcional)</label>
+
+            <label>Modelo</label>
             <input type="text" id="cfg-model" value="${this.escapeHtml(cfg.model)}" placeholder="vacio = por defecto">
+            <div style="font-size:11px;color:var(--text-muted);margin-top:-4px">
+                OpenAI: gpt-4o-mini | OpenRouter: google/gemini-2.0-flash-lite-001 | Groq: llama3-70b-8192
+            </div>
+
             <button class="modal-btn" id="cfg-save-ai">Guardar configuracion IA</button>
             <hr style="border-color:var(--border);margin:20px 0;">
             <label>Agregar pregunta/respuesta nueva</label>
@@ -346,12 +374,18 @@ class ChatApp {
             <div id="config-status"></div>`;
         this.openModal('Configuracion', html);
 
+        document.getElementById('cfg-provider').addEventListener('change', () => {
+            const show = document.getElementById('cfg-provider').value === 'custom';
+            document.getElementById('cfg-url-group').style.display = show ? 'block' : 'none';
+        });
+
         document.getElementById('cfg-save-ai').addEventListener('click', () => {
             const p = document.getElementById('cfg-provider').value;
             const k = document.getElementById('cfg-apikey').value.trim();
             const m = document.getElementById('cfg-model').value.trim();
+            const u = document.getElementById('cfg-baseurl')?.value.trim() || '';
             if (!k) { document.getElementById('config-status').textContent = 'Ingresa una API key'; document.getElementById('config-status').className = 'msg-error'; return; }
-            this.setAIConfig(p, k, m);
+            this.setAIConfig(p, k, m, u);
             document.getElementById('config-status').textContent = 'IA configurada correctamente';
             document.getElementById('config-status').className = 'msg-success';
         });

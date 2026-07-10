@@ -201,7 +201,7 @@ class ChatApp {
             url = 'https://openrouter.ai/api/v1/chat/completions';
             headers = { 'Authorization': `Bearer ${cfg.key}`, 'Content-Type': 'application/json', 'HTTP-Referer': window.location.origin };
             body = {
-                model: cfg.model || 'google/gemini-2.0-flash-lite-001',
+                model: cfg.model || 'mistralai/mistral-7b-instruct:free',
                 messages: [
                     { role: 'system', content: 'Eres un asistente util. Responde en espanol de forma clara y concisa.' },
                     { role: 'user', content: text },
@@ -240,7 +240,7 @@ class ChatApp {
             const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: this.abortController.signal });
             if (!resp.ok) {
                 const err = await resp.text().catch(() => 'Unknown error');
-                this.addMessage('assistant', `Error (${resp.status}): ${err.slice(0, 300)}`, { tag: 'Error', tagClass: '' });
+                this.addMessage('assistant', `${err.slice(0, 300)}`, { tag: `Error ${resp.status}`, tagClass: '' });
                 assistantDiv.remove();
                 this.isStreaming = false;
                 this.setLoading(false);
@@ -362,7 +362,7 @@ class ChatApp {
             <label>Modelo</label>
             <input type="text" id="cfg-model" value="${this.escapeHtml(cfg.model)}" placeholder="vacio = por defecto">
             <div style="font-size:11px;color:var(--text-muted);margin-top:-4px">
-                OpenAI: gpt-4o-mini | OpenRouter: google/gemini-2.0-flash-lite-001 | Groq: llama3-70b-8192
+                OpenAI: gpt-4o-mini | OpenRouter: mistralai/mistral-7b-instruct:free | Groq: llama3-70b-8192
             </div>
 
             <button class="modal-btn" id="cfg-save-ai">Guardar configuracion IA</button>
